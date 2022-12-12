@@ -17,7 +17,65 @@ vector<vector<double> > multiply(vector<vector<double> > &a, vector<vector<doubl
     return c;
 }
 
-void print(vector<vector<double> > &A) {
+// a = R{t x p}
+// covariance = R{p x p}
+vector<vector<double> > covariance(vector<vector<double> > a) {
+    int t = a.size(), p = a[0].size();
+    vector<vector<double> > q(p, vector<double>(p, 0.00));
+    
+    vector<double> mean(p, 0.00);
+    for(int time = 0; time < t; time++) {
+        for(int i = 0; i < p; i++) {
+            mean[i] += a[time][i];
+        }
+    }
+    for(int i = 0; i < p; i++) {
+        mean[i] /= t;
+    }
+    
+    for(int i = 0; i < p; i++) {
+        for(int j = 0; j < p; j++) {
+            for(int time = 0; time < t; time++) {
+                q[i][j] += (a[time][i] - mean[i]) * (a[time][j] - mean[j]);
+            }
+            q[i][j] /= (t - 1);
+        }
+    }
+    return q;
+}
+
+void update_covariance(vector<vector<double> > &cov, vector<double> &mean, vector<double> &x, int &time) {
+    if(time == 1) {
+        for(int i = 0; i < mean.size(); i++) {
+            mean[i] = x[i];
+        }
+        time = time + 1;
+        return;
+    }
+    for(int i = 0; i < cov.size(); i++) {
+        for(int j = 0; j < cov[i].size(); j++) {
+            cov[i][j] = (time-2) * cov[i][j] / (time - 1) + (mean[i] - x[i]) * (mean[j] - x[j]) / time;
+        }
+    }
+    for(int i = 0; i < mean.size(); i++) {
+        mean[i] = (mean[i] * (time - 1) + x[i]) / time;
+    }
+    time = time + 1;
+}
+
+vector<vector<double> > incremental_covariance(vector<vector<double> > a) {
+    int t = a.size(), p = a[0].size();
+    int time = 1;
+
+    vector<vector<double> > cov(p, vector<double>(p));
+    vector<double> mean(p);
+    for(int i = 0; i < t; i++) {
+        update_covariance(cov, mean, a[i], time);
+    }
+    return cov;
+}
+
+void print(vector<vector<double> > A) {
     for(int i = 0; i < A.size(); i++) {
         for(int j = 0; j < A.size(); j++) {
             cout << ((abs(A[i][j]) >= 0.0001) ? A[i][j] : 0) << ' ';
@@ -54,6 +112,16 @@ bool converge(vector<vector<double> > &a) {
     return off_diag_norm < 0.0000001;
 }
 
+/**
+ * @brief Rotate D with Jacobi rotation along columns and rows i, j
+ * Q gets updated as a matrix of eigenvectors
+ * 
+ * D_new = J D J' => eventually D = J_k ... J_1 A J_1' ... J_k'
+ * A = J_1' ... J_k' D J_k .. J_1
+ * So should eventually be J_1' .. J_k' and at this step, Q_new = Q J'
+ * J = all zeros, but J[k][k] = 1 for k != i, j 
+ * J[i][i] = J[j][j] = cos(theta) J[j][i] = -sin(theta) = -J[i][j]
+ */
 void jacobi(vector<vector<double> > &D, vector<vector<double> > &Q, int i, int j) {
     double theta = (D[i][i] == D[j][j]) ? M_PI/4 : atan(2 * D[i][j] / (D[j][j] - D[i][i])) / 2;
     double s = sin(theta), c = cos(theta);
@@ -80,16 +148,6 @@ void jacobi(vector<vector<double> > &D, vector<vector<double> > &Q, int i, int j
         D[j][k] = new_Djk[k];
         D[k][j] = new_Djk[k];
     }
-
-    /* D_new = J D J'
-        Eventually D = J_k ... J_1 A J_1' ... J_k'
-        A = J_1' ... J_k' D J_k .. J_1
-        So should eventually be J_1' .. J_k'
-        At this step, Q_new = Q J'
-        J = all zeros, but J[k][k] = 1 for k != i, j
-        J[i][i] = J[j][j] = cos(theta)
-        J[j][i] = -sin(theta) = -J[i][j]
-    */
 
     vector<double> new_Qki(Q.size()), new_Qkj(Q.size());
     for(int k = 0; k < Q.size(); k++) {
@@ -123,7 +181,7 @@ void eigendecompose(vector<vector<double> > &A, vector<vector<double> > &Q, vect
     }
 }
 
-int main() {
+void test_eigendecompose() {
     vector<vector<double> > A(2, vector<double>(2));
     A[0][0] = 4.00, A[0][1] = 0.00, A[1][0] = 0.00, A[1][1] = 3.00;
     vector<vector<double> > Q = A, D = A;
@@ -135,4 +193,37 @@ int main() {
     eigendecompose(A, Q, D);
     print(Q);
     print(D);
+
+    A[0][0] = 2.00, A[0][1] = 3.00, A[1][0] = 3.00, A[1][1] = 4.00;
+    eigendecompose(A, Q, D);
+    print(Q);
+    print(D);
+}
+
+void test_covariance() {
+    vector<vector<double> > a(6, vector<double>(2));
+    a[0][0] = 0.00, a[0][1] = 3.00;
+    a[1][0] = 1.00, a[1][1] = 3.00;
+    a[2][0] = 2.00, a[2][1] = 3.00;
+    a[3][0] = 3.00, a[3][1] = 3.00;
+    a[4][0] = 4.00, a[4][1] = 3.00;
+    a[5][0] = 5.00, a[5][1] = 3.00;
+    print(covariance(a));
+    print(incremental_covariance(a));
+
+
+    a[0][0] = 0.00, a[0][1] = 3.00;
+    a[1][0] = 1.00, a[1][1] = 5.00;
+    a[2][0] = 2.00, a[2][1] = -3.00;
+    a[3][0] = 3.00, a[3][1] = 1.00;
+    a[4][0] = 4.00, a[4][1] = 9.00;
+    a[5][0] = 5.00, a[5][1] = 3.00;
+    print(covariance(a));
+    print(incremental_covariance(a));
+}
+
+// testcases
+int main() {
+    // test_eigendecompose();
+    test_covariance();
 }
