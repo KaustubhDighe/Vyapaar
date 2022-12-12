@@ -44,6 +44,28 @@ vector<vector<double> > covariance(vector<vector<double> > a) {
     return q;
 }
 
+void update_moving_covariance(vector<vector<double> > &cov, vector<double> &mean, vector<double> &x, int &time, double lambda) {
+    if(time == 1) {
+        for(int i = 0; i < mean.size(); i++) {
+            mean[i] = x[i];
+        }
+        time = time + 1;
+        return;
+    }
+    for(int i = 0; i < cov.size(); i++) {
+        for(int j = 0; j < cov[i].size(); j++) {
+            cov[i][j] = (1-lambda) * cov[i][j] + (mean[i] - x[i]) * (mean[j] - x[j]) * lambda;
+        }
+    }
+    cout << cov[0][0] * 256 << endl;
+    for(int i = 0; i < mean.size(); i++) {
+        mean[i] = mean[i] * (1 - lambda) + x[i] * lambda;
+        //cout << mean[i] << ' ';
+    }
+    //cout << endl;
+    time = time + 1;
+}
+
 void update_covariance(vector<vector<double> > &cov, vector<double> &mean, vector<double> &x, int &time) {
     if(time == 1) {
         for(int i = 0; i < mean.size(); i++) {
@@ -67,10 +89,10 @@ vector<vector<double> > incremental_covariance(vector<vector<double> > a) {
     int t = a.size(), p = a[0].size();
     int time = 1;
 
-    vector<vector<double> > cov(p, vector<double>(p));
+    vector<vector<double> > cov(p, vector<double>(p, 0.00));
     vector<double> mean(p);
     for(int i = 0; i < t; i++) {
-        update_covariance(cov, mean, a[i], time);
+        update_moving_covariance(cov, mean, a[i], time, 0.25);
     }
     return cov;
 }
