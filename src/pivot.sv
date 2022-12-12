@@ -4,37 +4,30 @@
 module pivot #(
     parameter WIDTH = 16,
     parameter N_STOCKS = 4) (
-  input wire clk,
-  input wire rst,
-  input wire axiiv,
-  input wire [WIDTH - 1:0] axiid,
-  output logic axiov,
-  output logic [$clog2(N_STOCKS) - 1:0][1:0] axiod  //i, j
+  input signed [WIDTH - 1:0] matrix [N_STOCKS-1:0][N_STOCKS-1:0],
+  output logic [$clog2(WIDTH) - 1:0] pivot_i,
+  output logic [$clog2(WIDTH) - 1:0] pivot_j
   );
-  logic [2:0] state = 0;
-  logic [$clog2(N_STOCKS) - 1:0] i, j, i_max, j_max;
-  logic [WIDTH - 1: 0] max_val;
-  always_ff @(posedge clk) begin
-    if(rst) begin
-      state <= 0;
-      i <= 0;
-      j <= 0;
-      i_max <= 0;
-      j_max <= 0;
-      max_val <= 0;
-    end else if(state == 0) begin
-      if(axiiv) begin
-        if(max_val < axiid) begin
-            i <= i_max;
-            j <= j_max;
-            max_val <= axiid;
+  // This module is combinational
+  logic [$clog2(WIDTH) - 1:0] i_max, j_max;
+  logic signed [WIDTH - 1: 0] max_val = -1;
+  always_comb begin
+    max_val = -1;
+    i_max = 0;
+    j_max = 0;
+    for (int i = 0; i < N_STOCKS; i++) begin
+        for (int j = 0; j < N_STOCKS; j++) begin
+            //$display(max_val);
+            if(i != j && matrix[i][j] > max_val) begin
+                max_val = matrix[i][j];
+                i_max = i;
+                j_max = j;
+            end
         end
-      end else begin
-        axiov <= 1;
-        axiod <= {i_max, j_max};
-      end  
-    end
+    end 
   end
+  assign pivot_i = i_max;
+  assign pivot_j = j_max;
 endmodule
 
 `default_nettype wire
