@@ -4,7 +4,7 @@
 module converge_tb;
   logic clk;
   logic rst;
-  logic signed [15:0] matrix [1:0][1:0];
+  logic signed [1:0][1:0][15:0] matrix;
   logic conv;
 
   converge #(.N_STOCKS(2)) dut(.matrix(matrix), .conv(conv));
