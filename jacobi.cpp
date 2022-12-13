@@ -107,6 +107,13 @@ void print(vector<vector<double> > A) {
     cout << endl;
 }
 
+void print_vector(vector<double> A) {
+    for(int i = 0; i < A.size(); i++) {
+        cout << ((abs(A[i]) >= 0.0001) ? A[i] : 0) << ' ';
+    }
+    cout << endl;
+}
+
 pair<int, int> max_off_diagonal(vector<vector<double> > &a) {
     int i_max = -1, j_max = -1;
     double max_val = INT64_MIN;
@@ -203,6 +210,41 @@ void eigendecompose(vector<vector<double> > &A, vector<vector<double> > &Q, vect
     }
 }
 
+vector<double> eigenportfolio(vector<vector<double> > &D, vector<vector<double> > &Q) {
+    int p = D.size();
+    int second_index, first_index;
+    double first, second;
+    if(D[0][0] > D[1][1]) {
+        first_index = 0;
+        second_index = 1;
+        second = D[1][1];
+        first = D[0][0];
+    } else {
+        first_index = 1;
+        second_index = 0;
+        second = D[0][0];
+        first = D[1][1];
+    }
+    for(int i = 2; i < p; i++) {
+        if(D[i][i] > first) {
+            second = first;
+            first = D[i][i];
+            second_index = first_index;
+            first_index = i;
+        }
+    }
+    vector<double> portfolio(p);
+    double sum = 0.00;
+    for(int i = 0; i < p; i++) {
+        portfolio[i] = Q[second_index][i];
+        sum += portfolio[i];
+    }
+    for(int i = 0; i < p; i++) {
+        portfolio[i] /= sum;
+    }
+    return portfolio;
+}
+
 void test_eigendecompose() {
     vector<vector<double> > A(2, vector<double>(2));
     A[0][0] = 4.00, A[0][1] = 0.00, A[1][0] = 0.00, A[1][1] = 3.00;
@@ -210,16 +252,19 @@ void test_eigendecompose() {
     eigendecompose(A, Q, D);
     print(Q);
     print(D);
+    print_vector(eigenportfolio(D, Q));
 
     A[0][0] = 2.00, A[0][1] = 3.00, A[1][0] = 3.00, A[1][1] = 2.00;
     eigendecompose(A, Q, D);
     print(Q);
     print(D);
+    print_vector(eigenportfolio(D, Q));
 
     A[0][0] = 2.00, A[0][1] = 3.00, A[1][0] = 3.00, A[1][1] = 4.00;
     eigendecompose(A, Q, D);
     print(Q);
     print(D);
+    print_vector(eigenportfolio(D, Q));
 }
 
 void test_covariance() {
@@ -246,6 +291,6 @@ void test_covariance() {
 
 // testcases
 int main() {
-    // test_eigendecompose();
-    test_covariance();
+    test_eigendecompose();
+    //test_covariance();
 }
