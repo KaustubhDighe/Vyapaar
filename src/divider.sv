@@ -32,13 +32,13 @@ module qdiv #(
 	parameter N = 16
 	)
 	(
-	input 	[N-1:0] i_dividend,
-	input 	[N-1:0] i_divisor,
-	input 	i_start,
-	input 	i_clk,
-	output 	[N-1:0] o_quotient_out,
-	output 	o_complete,
-	output	o_overflow
+	input 	wire [N-1:0] i_dividend,
+	input 	wire [N-1:0] i_divisor,
+	input 	wire i_start,
+	input 	wire i_clk,
+	output 	logic [N-1:0] o_quotient_out,
+	output 	logic o_complete,
+	output	logic o_overflow
 	);
  
 	reg [2*N+Q-3:0]	reg_working_quotient;	//	Our working copy of the quotient

@@ -3,11 +3,10 @@
 
 module top_level(
   input wire clk_100mhz, //clock @ 100 mhz
-  input wire [15:0] sw, //switches
   input wire btnc, //btnc (used for reset)
   
   output logic [7:0] an,
-  output logic caa,cab,cac,cad,cae,caf,cag
+  output logic ca,cb,cc,cd,ce,cf,cg
   );
   
 logic signed [75:0][2:0][15:0] data;
@@ -135,7 +134,7 @@ eigendecompose #(.N_STOCKS(3)) eig (
 );
 
 logic portfolio_done;
-logic signed [2:0][15:0] target_portfolio;
+logic signed [2:0][15:0] portfolio;
 eigenportfolio #(.N_STOCKS(3)) eig_portfolio (
     .clk(clk_100mhz),
     .rst(btnc),
@@ -143,18 +142,49 @@ eigenportfolio #(.N_STOCKS(3)) eig_portfolio (
     .eigenvectors(eigenvectors),
     .eigenvalues(eigenvalues),
     .done(portfolio_done),
-    .portfolio(target_portfolio)
+    .portfolio(portfolio)
 );
 
 logic [15:0] capital = 16'd10000;  // $10,000
 
+logic signed [2:0][15:0] cumulative_returns;
+logic [31:0] present_money;
+
+seven_segment_controller mssc(
+    .clk_in(clk_100mhz),
+    .rst_in(btnc),
+    .val_in(capital),
+    .cat_out({cg, cf, ce, cd, cc, cb, ca}),
+    .an_out(an)
+);
+
+logic state = 0;
 always_ff @(posedge clk_100mhz) begin
-    old_prices <= new_prices;
-    new_prices <= data[cycle];
     if(btnc) begin
         cycle <= 1;
-    end else if(portfolio_done) begin
-        cycle <= (cycle == 75) ? 75 : cycle + 1;
+        state <= 0;
+    end else if (state == 0) begin
+        if(portfolio_done) begin
+            if(cycle < 75) begin
+                cycle <= cycle + 1;
+                old_prices <= new_prices;
+                new_prices <= data[cycle];
+                cumulative_returns[0] <= ($signed(cumulative_returns[0]) + 1 <<< 8) * (1 <<< 8 + $signed(returns[0])) - 1 <<< 8;
+                cumulative_returns[1] <= ($signed(cumulative_returns[1]) + 1 <<< 8) * (1 <<< 8 + $signed(returns[1])) - 1 <<< 8;
+                cumulative_returns[2] <= ($signed(cumulative_returns[2]) + 1 <<< 8) * (1 <<< 8 + $signed(returns[2])) - 1 <<< 8;
+                present_money <= capital * 
+                            ((($signed(cumulative_returns[0]) + 1 <<< 8) * (1 <<< 8 + $signed(returns[0])) - 1 <<< 8) * portfolio[0]
+                            + (($signed(cumulative_returns[1]) + 1 <<< 8) * (1 <<< 8 + $signed(returns[1])) - 1 <<< 8) * portfolio[1]
+                            + (($signed(cumulative_returns[2]) + 1 <<< 8) * (1 <<< 8 + $signed(returns[2])) - 1 <<< 8) * portfolio[2]
+                            + 1 << 8);
+                start_div <= 1;
+            end else begin
+                state <= 1;
+            end
+        end
+    end else if(state == 1) begin
+        // just stay here
+        state <= 1;
     end
 end
 endmodule

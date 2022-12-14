@@ -4,7 +4,7 @@
 module pivot #(
     parameter WIDTH = 16,
     parameter N_STOCKS = 4) (
-  input signed [N_STOCKS-1:0][N_STOCKS-1:0][WIDTH - 1:0] matrix,
+  input wire signed [N_STOCKS-1:0][N_STOCKS-1:0][WIDTH - 1:0] matrix,
   output logic [$clog2(WIDTH) - 1:0] pivot_i,
   output logic [$clog2(WIDTH) - 1:0] pivot_j
   );
