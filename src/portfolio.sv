@@ -7,8 +7,8 @@ module eigenportfolio #(
   input wire clk,
   input wire rst,
   input wire start,
-  input wire signed [N_STOCKS-1:0][N_STOCKS-1:0][WIDTH - 1:0] eigenvectors,
-  input wire signed [N_STOCKS-1:0][N_STOCKS-1:0][WIDTH - 1:0] eigenvalues,
+  input wire signed [N_STOCKS * N_STOCKS -1:0][WIDTH - 1:0] eigenvectors,
+  input wire signed [N_STOCKS * N_STOCKS -1:0][WIDTH - 1:0] eigenvalues,
   output logic done,
   output logic signed [N_STOCKS-1:0][WIDTH - 1:0] portfolio
   );
@@ -20,17 +20,17 @@ module eigenportfolio #(
 
   // eigenvector corresponding to 2nd-highest eigenvalue
   assign eigenvector = 
-    ($signed(eigenvalues[0][0]) > $signed(eigenvalues[1][1]) 
-    && $signed(eigenvalues[2][2]) > $signed(eigenvalues[0][0]))
-    || ($signed(eigenvalues[0][0]) < $signed(eigenvalues[1][1]) 
-    && $signed(eigenvalues[2][2]) < $signed(eigenvalues[0][0]))
-        ?  {eigenvectors[2][0], eigenvectors[1][0], eigenvectors[0][0]}
-    : ($signed(eigenvalues[1][1]) > $signed(eigenvalues[0][0]) 
-    && $signed(eigenvalues[2][2]) > $signed(eigenvalues[1][1]))
-    || ($signed(eigenvalues[1][1]) < $signed(eigenvalues[0][0]) 
-    && $signed(eigenvalues[2][2]) < $signed(eigenvalues[1][1]))
-        ?  {eigenvectors[2][1], eigenvectors[1][1], eigenvectors[0][1]}
-    : {eigenvectors[2][2], eigenvectors[1][2], eigenvectors[0][2]};
+    ($signed(eigenvalues[0 * N_STOCKS + 0]) > $signed(eigenvalues[1 * N_STOCKS + 1]) 
+    && $signed(eigenvalues[2 * N_STOCKS + 2]) > $signed(eigenvalues[0 * N_STOCKS + 0]))
+    || ($signed(eigenvalues[0 * N_STOCKS + 0]) < $signed(eigenvalues[1 * N_STOCKS + 1]) 
+    && $signed(eigenvalues[2 * N_STOCKS + 2]) < $signed(eigenvalues[0 * N_STOCKS + 0]))
+        ?  {eigenvectors[2 * N_STOCKS + 0], eigenvectors[1 * N_STOCKS + 0], eigenvectors[0 * N_STOCKS + 0]}
+    : ($signed(eigenvalues[1 * N_STOCKS + 1]) > $signed(eigenvalues[0 * N_STOCKS + 0]) 
+    && $signed(eigenvalues[2 * N_STOCKS + 2]) > $signed(eigenvalues[1 * N_STOCKS + 1]))
+    || ($signed(eigenvalues[1 * N_STOCKS + 1]) < $signed(eigenvalues[0 * N_STOCKS + 0]) 
+    && $signed(eigenvalues[2 * N_STOCKS + 2]) < $signed(eigenvalues[1 * N_STOCKS + 1]))
+        ?  {eigenvectors[2 * N_STOCKS + 1], eigenvectors[1 * N_STOCKS + 1], eigenvectors[0 * N_STOCKS + 1]}
+    : {eigenvectors[2 * N_STOCKS + 2], eigenvectors[1 * N_STOCKS + 2], eigenvectors[0 * N_STOCKS + 2]};
   
   assign sum = $signed(eigenvector[0]) + $signed(eigenvector[1]) + $signed(eigenvector[2]);
 
