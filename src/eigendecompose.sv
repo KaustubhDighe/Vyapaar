@@ -13,7 +13,7 @@ module eigendecompose #(
   output logic signed [N_STOCKS * N_STOCKS - 1:0][WIDTH - 1:0] eigenvalues
   );
 
-  logic [2:0] state = 0;
+  logic [1:0] state = 0;
 
   logic signed [N_STOCKS * N_STOCKS - 1:0][WIDTH - 1:0] D;
   logic signed [N_STOCKS * N_STOCKS - 1:0][WIDTH - 1:0] Q;
@@ -88,6 +88,8 @@ module eigendecompose #(
     if (rst) begin
       state <= 0;
       done <= 0;
+      arctan_valid_in <= 0;
+      sincos_valid_in <= 0;
     end else if(state == 0) begin
       done <= 0;
       if(start) begin
