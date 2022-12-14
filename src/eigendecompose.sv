@@ -19,13 +19,13 @@ module eigendecompose #(
   logic signed [N_STOCKS * N_STOCKS - 1:0][WIDTH - 1:0] Q;
   
   logic conv;
-  converge converge_0(
+  converge #(.N_STOCKS(N_STOCKS)) converge_0(
     .matrix(D), 
     .conv(conv)
   );
 
   logic [$clog2(WIDTH) - 1:0] pivot_i, pivot_j;
-  pivot pivot_0(
+  pivot #(.N_STOCKS(N_STOCKS))pivot_0(
     .matrix(D), 
     .pivot_i(pivot_i),
     .pivot_j(pivot_j)
@@ -41,7 +41,7 @@ module eigendecompose #(
   logic signed [WIDTH - 1: 0] arctan_y, arctan_x;
   assign arctan_data_in = {arctan_y, arctan_x};
 
-  cordic_arctan arctan (
+  /*cordic_arctan arctan (
     .aclk(clk),
     .s_axis_cartesian_tdata(arctan_data_in),
     .s_axis_cartesian_tvalid(arctan_valid_in),
@@ -49,7 +49,7 @@ module eigendecompose #(
     .m_axis_dout_tdata(arctan_data_out),
     .m_axis_dout_tvalid(arctan_valid_out),
     .m_axis_dout_tuser(arctan_user_out)
-  );
+  );*/
 
   logic sincos_valid_in, sincos_valid_out;
   logic [3:0] sincos_user_in, sincos_user_out;
@@ -74,7 +74,7 @@ module eigendecompose #(
     end
   endgenerate
 
-  cordic_sine sincos (
+  /*cordic_sine sincos (
     .aclk(clk),
     .s_axis_cartesian_tdata(sincos_data_in),
     .s_axis_cartesian_tvalid(sincos_valid_in),
@@ -82,7 +82,7 @@ module eigendecompose #(
     .m_axis_dout_tdata(sincos_data_out),
     .m_axis_dout_tvalid(sincos_valid_out),
     .m_axis_dout_tuser(sincos_user_out)
-  );
+  );*/
 
   always_ff @( posedge clk ) begin
     if (rst) begin
