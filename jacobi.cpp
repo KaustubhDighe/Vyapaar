@@ -245,6 +245,14 @@ vector<double> eigenportfolio(vector<vector<double> > &D, vector<vector<double> 
     return portfolio;
 }
 
+vector<double> generate_orders(double capital, vector<double> &portfolio, vector<double> &target) {
+    vector<double> orders(portfolio.size());
+    for(int i = 0; i < portfolio.size(); i++) {
+        orders[i] = (target[i] - portfolio[i]) * capital;
+    }
+    return orders;
+}
+
 void test_eigendecompose() {
     vector<vector<double> > A(2, vector<double>(2));
     A[0][0] = 4.00, A[0][1] = 0.00, A[1][0] = 0.00, A[1][1] = 3.00;
