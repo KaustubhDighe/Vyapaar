@@ -29,12 +29,14 @@ module covariance #(
             if(valid_in) begin
               mean[i] <= $signed(x_in[i]);
               state <= 1;
+              valid_out <= 1;
             end 
           end else if(state == 1) begin
             if(valid_in) begin
               // update mean
               mean[i] <= ($signed(mean[i]) * (($signed(1) <<< FRACT) - $signed(LAMBDA)) + $signed(x_in[i]) * LAMBDA) >>> FRACT;
               //$display(i, mean[i]);
+              valid_out <= 1;
             end
           end
         end
@@ -43,8 +45,8 @@ module covariance #(
       for(j = 0; j < N_STOCKS; j++) begin
         always_ff @(posedge clk) begin
           if(rst) begin
-            state <= 0;
-            valid_out <= 0;
+            //state <= 0;
+            //valid_out <= 0;
             cov[i][j] <= $signed(0);
           end else if(state == 0) begin
             if(valid_in) begin

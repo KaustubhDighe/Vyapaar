@@ -34,25 +34,21 @@ module eigendecompose #(
   logic [$clog2(WIDTH) - 1:0] i, j;
 
   logic arctan_valid_in, arctan_valid_out;
-  logic [3:0] arctan_user_in, arctan_user_out;
   logic signed [WIDTH - 1: 0] theta, arctan_data_out;
 
   logic signed [2*WIDTH - 1: 0] arctan_data_in;
   logic signed [WIDTH - 1: 0] arctan_y, arctan_x;
   assign arctan_data_in = {arctan_y, arctan_x};
 
-  /*cordic_arctan arctan (
+  cordic_arctan arctan (
     .aclk(clk),
     .s_axis_cartesian_tdata(arctan_data_in),
     .s_axis_cartesian_tvalid(arctan_valid_in),
-    .s_axis_cartesian_tuser(arctan_user_in),
     .m_axis_dout_tdata(arctan_data_out),
-    .m_axis_dout_tvalid(arctan_valid_out),
-    .m_axis_dout_tuser(arctan_user_out)
-  );*/
+    .m_axis_dout_tvalid(arctan_valid_out)
+  );
 
   logic sincos_valid_in, sincos_valid_out;
-  logic [3:0] sincos_user_in, sincos_user_out;
   logic signed [2*WIDTH - 1: 0] sincos_data_out;
 
   logic signed [WIDTH - 1: 0] sincos_data_in;
@@ -74,15 +70,13 @@ module eigendecompose #(
     end
   endgenerate
 
-  /*cordic_sine sincos (
+  cordic_sine sincos (
     .aclk(clk),
-    .s_axis_cartesian_tdata(sincos_data_in),
-    .s_axis_cartesian_tvalid(sincos_valid_in),
-    .s_axis_cartesian_tuser(sincos_user_in),
+    .s_axis_phase_tdata(sincos_data_in),
+    .s_axis_phase_tvalid(sincos_valid_in),
     .m_axis_dout_tdata(sincos_data_out),
-    .m_axis_dout_tvalid(sincos_valid_out),
-    .m_axis_dout_tuser(sincos_user_out)
-  );*/
+    .m_axis_dout_tvalid(sincos_valid_out)
+  );
 
   always_ff @( posedge clk ) begin
     if (rst) begin
