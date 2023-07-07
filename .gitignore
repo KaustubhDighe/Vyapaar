@@ -2,3 +2,5 @@
 .vscode/
 *.vcd
 *.out
+obj/*
+lab-bc.py
