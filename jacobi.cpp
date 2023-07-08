@@ -300,5 +300,5 @@ void test_covariance() {
 // testcases
 int main() {
     test_eigendecompose();
-    //test_covariance();
+    test_covariance();
 }

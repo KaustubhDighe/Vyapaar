@@ -4,7 +4,7 @@
 // data_out = arctan(y_in/x_in)
 module cordic_arctan #(
     parameter WIDTH = 16,
-    parameter STAGES = 10) (
+    parameter STAGES = 13) (
   input wire clk,
   input wire rst,
   input wire signed [WIDTH-1:0] y_in,
@@ -19,7 +19,7 @@ module cordic_arctan #(
   logic [$clog2(STAGES):0] i = 0;
   logic done = 0;
   
-  logic signed [9:0][WIDTH-1:0] atan_lut;
+  logic signed [12:0][WIDTH-1:0] atan_lut;
   assign atan_lut[0] = 16'h1921;
   assign atan_lut[1] = 16'h0ed6;
   assign atan_lut[2] = 16'h07d6;
@@ -30,6 +30,9 @@ module cordic_arctan #(
   assign atan_lut[7] = 16'h003f;
   assign atan_lut[8] = 16'h001f;
   assign atan_lut[9] = 16'h000f;
+  assign atan_lut[10] = 16'h0007;
+  assign atan_lut[11] = 16'h0003;
+  assign atan_lut[12] = 16'h0001;
 
   always_ff @( posedge clk ) begin
     if(rst) begin

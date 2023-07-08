@@ -66,4 +66,8 @@ int main() {
     cout << cordic_sine(-M_PI/3).second << ' ' << sin(-M_PI/3) << endl;
     cout << cordic_sine(-2*M_PI/3).second << ' ' << sin(-2*M_PI/3) << endl;
     cout << cordic_sine(2*M_PI/3).first << ' ' << cos(2*M_PI/3) << endl;
+
+    for(int i = 0; i < 16; i++) {
+        printf("  assign scaling[%d] = 16'h%06x;\n", i, (int) (pow(2, 13) * K(i)));
+    }
 }

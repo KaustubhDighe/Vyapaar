@@ -43,7 +43,7 @@ module cordic_arctan_tb;
     x_in = 16'b0010_0000_0000_0000; // 1.0000
     #20;
     valid_in = 0;
-    for(int i = 0; i < 10; i++) begin
+    for(int i = 0; i < 16; i++) begin
         if(valid_out && !test_ok) begin
             if(theta_out == 16'h1921) begin
                 test_ok = 1;
@@ -65,9 +65,9 @@ module cordic_arctan_tb;
     x_in = 16'b0100_0000_0000_0000; // 1.0000
     #20;
     valid_in = 0;
-    for(int i = 0; i < 13; i++) begin
+    for(int i = 0; i < 16; i++) begin
         if(valid_out && !test_ok) begin
-            if($signed(theta_out - 3798) <= 8 && $signed(theta_out - 3798) >= -8) begin
+            if($signed(theta_out - 3798) <= 2 && $signed(theta_out - 3798) >= -2) begin
                 test_ok = 1;
                 $display(i);
                 $display("Test 2 PASSED");
@@ -87,16 +87,16 @@ module cordic_arctan_tb;
     x_in = 16'b0010_0000_0000_0000; // 1.0000
     #20;
     valid_in = 0;
-    for(int i = 0; i < 13; i++) begin
+    for(int i = 0; i < 16; i++) begin
         if(valid_out && !test_ok) begin
-            if($signed(theta_out - 16'hE6DD) <= 8 && $signed(theta_out - 16'hE6DD) >= -8) begin
+            if($signed(theta_out - 16'hE6DD) <= 2 && $signed(theta_out - 16'hE6DD) >= -2) begin
                 test_ok = 1;
                 $display(i);
                 $display("Test 3 PASSED");
             end else begin
                 $display("Test 3 FAILED");
-                $display("%h", theta_out - 16'hE6DD <= 8 );
-                $display(y_in);
+                $display("%h", theta_out );
+                $display(theta_out);
             end
         end
         #20;
@@ -110,9 +110,9 @@ module cordic_arctan_tb;
     x_in = 16'b1110_0000_0000_0000; // -1.0000
     #20;
     valid_in = 0;
-    for(int i = 0; i < 13; i++) begin
+    for(int i = 0; i < 16; i++) begin
         if(valid_out && !test_ok) begin
-            if($signed(theta_out - 16'h4B66) <= 8 && $signed(theta_out - 16'h4B66) >= -8) begin
+            if($signed(theta_out - 16'h4B66) <= 1 && $signed(theta_out - 16'h4B66) >= -1) begin
                 test_ok = 1;
                 $display(i);
                 $display("Test 4 PASSED");
@@ -133,9 +133,9 @@ module cordic_arctan_tb;
     x_in = -$signed(16'b0010_0000_0000_0000); // -1.0000
     #20;
     valid_in = 0;
-    for(int i = 0; i < 13; i++) begin
+    for(int i = 0; i < 16; i++) begin
         if(valid_out && !test_ok) begin
-            if($signed(theta_out + 16666) <= 8 && $signed(theta_out + 16666) >= -8) begin
+            if($signed(theta_out + 16666) <= 1 && $signed(theta_out + 16666) >= -1) begin
                 test_ok = 1;
                 $display(theta_out);
                 $display("Test 5 PASSED");
